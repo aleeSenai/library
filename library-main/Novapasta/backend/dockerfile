@@ -1,0 +1,22 @@
+# Etapa de build
+FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /app
+
+# Copia os arquivos necessários para a construção
+COPY . .
+
+# Executa o comando para construir a aplicação (isso vai gerar o .jar)
+RUN mvn clean package -DskipTests
+
+# Etapa de execução
+FROM openjdk:17
+WORKDIR /app
+
+# Copia o JAR gerado na etapa de build para a imagem final
+COPY --from=build /app/target/*.jar app.jar
+
+# Expõe a porta 8080 para acesso à API
+EXPOSE 8080
+
+# Comando para rodar o JAR
+ENTRYPOINT ["java", "-jar", "app.jar"]
